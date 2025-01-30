@@ -12,12 +12,6 @@ from black_scholes_model import BlackScholesModel
 def historical_stock_price_chart(selected_equity: str):
     """
     Fetches historical stock data for the given equity and generates an interactive Plotly chart.
-
-    Args:
-        selected_equity (str): The stock ticker symbol.
-
-    Returns:
-        None (Displays the plot in Streamlit)
     """
     hist_stock_data = yf.Ticker(selected_equity).history(period='12mo')
     if hist_stock_data.empty:
