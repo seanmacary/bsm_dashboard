@@ -13,18 +13,29 @@ st.markdown(
 # Title for the sidebar
 st.sidebar.title("BSM Inputs")
 
+# Initialize session state for tracking the currently selected equity
+if "selected_equity" not in st.session_state:
+    st.session_state.selected_equity = None
+
+# Initialize session state for reset flag used to reload app when selected equity changes
+if "reset_flag" not in st.session_state:
+    st.session_state.reset_flag = False
+
+# Equity Dropdown (contains list of all S&P500 Tickers)
 selected_equity = st.sidebar.selectbox(
     'Select an equity:',
     scrape_spy_tickers()
 )
 
-# Create yfinance Ticker object
+# If ticker has changed, trigger reset logic
+if selected_equity != st.session_state.selected_equity:
+    st.session_state.selected_equity = selected_equity
+    st.session_state.reset_flag = True
+    st.rerun()
+
+# Fetch Stock Data
 sel_ticker = yf.Ticker(selected_equity)
-
-# Calculate the current share price of the selected equity
 cur_share_price = sel_ticker.history(period='1d')["Close"].iloc[-1]
-
-# Calculate the current 30-day historical volatility for selected equity
 cur_volatility = calc_historical_volatility(sel_ticker.history(period='30d'), 30)
 
 # Placeholder for share price info
@@ -36,14 +47,19 @@ DEFAULT_VALUES = {
     "days_to_maturity": 30,
     "risk_free_rate_input": get_cur_risk_free_rate(),
     "strike_price_input": round(cur_share_price, 0),  # Default as rounded current share price
-    "volatility": round(cur_volatility, 2)
-
+    "volatility": round(cur_volatility, 2),
+    "price_shock_default_range":  (round(cur_share_price * 0.9, 0),
+                                   round(cur_share_price * 1.1, 0)),
+    "vol_shock_default_range": (round(cur_volatility * 0.95, 4),
+                                round(cur_volatility * 1.05, 4)),
 }
 
-# Initialize session state for all defaults
-for key, value in DEFAULT_VALUES.items():
-    if key not in st.session_state:
+# Reset inputs when reset_flag is set
+if st.session_state.reset_flag:
+    for key, value in DEFAULT_VALUES.items():
         st.session_state[key] = value
+    st.session_state.reset_flag = False  # Clear flag after resetting
+    st.rerun()
 
 
 # Function to reset sidebar inputs to default values
@@ -54,7 +70,6 @@ def reset_inputs_to_default() -> None:
 
 if st.sidebar.button("Reset Below Inputs to Default"):
     reset_inputs_to_default()
-
 
 # Strike Price Input
 strike_price_input = st.sidebar.number_input(
@@ -90,4 +105,29 @@ volatility = st.sidebar.number_input(
     key='volatility'
 )
 
-st.sidebar.write("# ")
+st.sidebar.write("# Heatmap Parameters")
+
+# Price shock range calculations
+price_shock_percentage = 0.3
+price_shock_min = round(cur_share_price * (1 - price_shock_percentage), 0)
+price_shock_max = round(cur_share_price * (1 + price_shock_percentage), 0)
+
+# Slider for Price-Shock heatmap Axis
+price_shock_slider = st.sidebar.slider(
+    'Select a range of price-shock values',
+    price_shock_min, price_shock_max,
+    st.session_state.price_shock_default_range,
+    key='price_shock_default_range',
+)
+
+vol_shock_percentage = 0.50
+vol_shock_min = round(cur_volatility * (1 - vol_shock_percentage), 4)
+vol_shock_max = round(cur_volatility * (1 + vol_shock_percentage), 4)
+
+# Slider for Volatility-Shock heatmap Axis
+vol_shock_slider = st.sidebar.slider(
+    'Select a range of volatility-shock values',
+    vol_shock_min, vol_shock_max,
+    st.session_state.vol_shock_default_range,
+    key='vol_shock_default_range',
+)
