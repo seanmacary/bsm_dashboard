@@ -26,3 +26,35 @@ def calc_historical_volatility(stock_data, window: int = 252) -> float:
     log_returns = np.log(stock_data['Close'] / stock_data['Close'].shift(1))
     volatility = np.sqrt(window) * log_returns.std()
     return volatility
+
+
+def fetch_stock_data(selected_equity: str):
+    """Fetch stock price and volatility data for the selected equity."""
+    sel_ticker = yf.Ticker(selected_equity)
+    cur_share_price = sel_ticker.history(period='1d')["Close"].iloc[-1]
+    cur_volatility = calc_historical_volatility(sel_ticker.history(period='30d'), 30)
+    return cur_share_price, cur_volatility
+
+
+def compute_default_values(cur_share_price: float, cur_volatility: float) -> dict:
+    """Compute the default input values dynamically."""
+    return {
+        "days_to_maturity": 30,
+        "risk_free_rate_input": get_cur_risk_free_rate(),
+        "strike_price_input": round(cur_share_price, 0),
+        "volatility": round(cur_volatility, 2),
+        "price_shock_default_range": (
+            round(cur_share_price * 0.9, 0),
+            round(cur_share_price * 1.1, 0),
+        ),
+        "vol_shock_default_range": (
+            round(cur_volatility * 0.95, 4),
+            round(cur_volatility * 1.05, 4),
+        ),
+    }
+
+
+def reset_inputs_to_default() -> None:
+    """Reset all sidebar input values to their default state."""
+    for key, value in st.session_state.default_values.items():
+        st.session_state[key] = value

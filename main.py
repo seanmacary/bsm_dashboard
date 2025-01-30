@@ -1,8 +1,9 @@
 import streamlit as st
 from utils import (
-    scrape_spy_tickers, get_cur_risk_free_rate, calc_historical_volatility
+    fetch_stock_data, compute_default_values,
+    reset_inputs_to_default, scrape_spy_tickers
 )
-import yfinance as yf
+
 
 # Title for the App
 st.markdown(
@@ -34,40 +35,20 @@ if selected_equity != st.session_state.selected_equity:
     st.rerun()
 
 # Fetch Stock Data
-sel_ticker = yf.Ticker(selected_equity)
-cur_share_price = sel_ticker.history(period='1d')["Close"].iloc[-1]
-cur_volatility = calc_historical_volatility(sel_ticker.history(period='30d'), 30)
+cur_share_price, cur_volatility = fetch_stock_data(selected_equity)
+
+# Store default values in session state
+if "default_values" not in st.session_state or st.session_state.reset_flag:
+    st.session_state.default_values = compute_default_values(cur_share_price, cur_volatility)
+    st.session_state.update(st.session_state.default_values)
+    st.session_state.reset_flag = False
+    st.rerun()
 
 # Placeholder for share price info
 cur_share_price_placeholder = st.sidebar.empty()
 cur_share_price_placeholder.write(f"**{selected_equity}** Current Share Price: **${cur_share_price:.2f}**")
 
-# Default values for inputs
-DEFAULT_VALUES = {
-    "days_to_maturity": 30,
-    "risk_free_rate_input": get_cur_risk_free_rate(),
-    "strike_price_input": round(cur_share_price, 0),  # Default as rounded current share price
-    "volatility": round(cur_volatility, 2),
-    "price_shock_default_range":  (round(cur_share_price * 0.9, 0),
-                                   round(cur_share_price * 1.1, 0)),
-    "vol_shock_default_range": (round(cur_volatility * 0.95, 4),
-                                round(cur_volatility * 1.05, 4)),
-}
-
-# Reset inputs when reset_flag is set
-if st.session_state.reset_flag:
-    for key, value in DEFAULT_VALUES.items():
-        st.session_state[key] = value
-    st.session_state.reset_flag = False  # Clear flag after resetting
-    st.rerun()
-
-
-# Function to reset sidebar inputs to default values
-def reset_inputs_to_default() -> None:
-    for key, value in DEFAULT_VALUES.items():
-        st.session_state[key] = value
-
-
+# Sidebar Inputs
 if st.sidebar.button("Reset Below Inputs to Default"):
     reset_inputs_to_default()
 
@@ -107,27 +88,20 @@ volatility = st.sidebar.number_input(
 
 st.sidebar.write("# Heatmap Parameters")
 
-# Price shock range calculations
-price_shock_percentage = 0.3
-price_shock_min = round(cur_share_price * (1 - price_shock_percentage), 0)
-price_shock_max = round(cur_share_price * (1 + price_shock_percentage), 0)
-
 # Slider for Price-Shock heatmap Axis
 price_shock_slider = st.sidebar.slider(
     'Select a range of price-shock values',
-    price_shock_min, price_shock_max,
+    round(cur_share_price * 0.7, 0),
+    round(cur_share_price * 1.3, 0),
     st.session_state.price_shock_default_range,
     key='price_shock_default_range',
 )
 
-vol_shock_percentage = 0.50
-vol_shock_min = round(cur_volatility * (1 - vol_shock_percentage), 4)
-vol_shock_max = round(cur_volatility * (1 + vol_shock_percentage), 4)
-
 # Slider for Volatility-Shock heatmap Axis
 vol_shock_slider = st.sidebar.slider(
     'Select a range of volatility-shock values',
-    vol_shock_min, vol_shock_max,
+    round(cur_volatility * 0.5, 4),
+    round(cur_volatility * 1.5, 4),
     st.session_state.vol_shock_default_range,
     key='vol_shock_default_range',
 )
