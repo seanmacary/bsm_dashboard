@@ -1,6 +1,12 @@
 import streamlit as st
-import plotly.express as px
 import yfinance as yf
+import numpy as np
+import plotly.express as px
+import seaborn as sns
+import matplotlib.pyplot as plt
+import pandas as pd
+
+from black_scholes_model import BlackScholesModel
 
 
 def historical_stock_price_chart(selected_equity: str):
@@ -37,3 +43,38 @@ def historical_stock_price_chart(selected_equity: str):
     )
 
     return fig
+
+
+def generate_sensitivity_heatmap(K, T, r,  price_range, vol_range):
+    """
+    Generates heatmaps for Call and Put option prices based on stock price and volatility changes.
+    """
+    stock_prices = np.linspace(price_range[0], price_range[1], 8)
+    volatilities = np.linspace(vol_range[0], vol_range[1], 8)
+
+    call_prices = np.zeros((len(volatilities), len(stock_prices)))
+    put_prices = np.zeros((len(volatilities), len(stock_prices)))
+
+    for i, vol in enumerate(volatilities):
+        for j, price in enumerate(stock_prices):
+            bsm = BlackScholesModel(S=price, K=K, T=T, r=r, sigma=vol)
+            call_prices[i, j] = bsm.call_option_price()
+            put_prices[i, j] = bsm.put_option_price()
+
+    # Plot Call Price Heatmap
+    fig_call, ax_call = plt.subplots(figsize=(10, 8))
+    sns.heatmap(call_prices, xticklabels=np.round(stock_prices, 2), yticklabels=np.round(volatilities, 2),
+                annot=True, fmt=".2f", cmap="viridis", ax=ax_call)
+    ax_call.set_title('Call Option Prices')
+    ax_call.set_xlabel('Stock Price')
+    ax_call.set_ylabel('Volatility')
+
+    # Plot Put Price Heatmap
+    fig_put, ax_put = plt.subplots(figsize=(10, 8))
+    sns.heatmap(put_prices, xticklabels=np.round(stock_prices, 2), yticklabels=np.round(volatilities, 2),
+                annot=True, fmt=".2f", cmap="viridis", ax=ax_put)
+    ax_put.set_title('Put Option Prices')
+    ax_put.set_xlabel('Stock Price')
+    ax_put.set_ylabel('Volatility')
+
+    return fig_call, fig_put

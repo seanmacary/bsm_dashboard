@@ -60,3 +60,8 @@ def reset_inputs_to_default() -> None:
         st.session_state[key] = value
 
 
+def load_css(file_name: str):
+    """Reads and injects CSS file into Streamlit."""
+    with open(file_name) as f:
+        st.markdown(f"<style>{f.read()}</style>", unsafe_allow_html=True)
+

@@ -1,9 +1,9 @@
 import streamlit as st
 from utils import (
     fetch_stock_data, compute_default_values,
-    reset_inputs_to_default, scrape_spy_tickers
+    reset_inputs_to_default, scrape_spy_tickers, load_css
 )
-from plotting import historical_stock_price_chart
+from plotting import historical_stock_price_chart, generate_sensitivity_heatmap
 from black_scholes_model import BlackScholesModel
 
 
@@ -98,6 +98,7 @@ price_shock_slider = st.sidebar.slider(
     round(cur_share_price * 0.7, 0),
     round(cur_share_price * 1.3, 0),
     st.session_state.price_shock_default_range,
+    step=1.0,
     key='price_shock_default_range',
 )
 
@@ -113,16 +114,6 @@ vol_shock_slider = st.sidebar.slider(
 ################# MAIN Section UI CODE #####################
 
 # Title for the App
-margins_css = """
-    <style>
-        .main > div {
-            padding-left: 0rem;
-            padding-right: 0rem;
-        }
-    </style>
-"""
-
-st.markdown(margins_css, unsafe_allow_html=True)
 st.markdown(
     "<h1 style='text-align: center;'>Black-Scholes Option Pricing Model for S&P 500 Equities</h1>",
     unsafe_allow_html=True
@@ -136,20 +127,54 @@ bsm = BlackScholesModel(
     S=cur_share_price,
     K=strike_price_input,
     T=days_to_maturity / 365,
-    r=risk_free_rate_input/100,
+    r=risk_free_rate_input / 100,
     sigma=volatility
 )
 
-# Create a new container with two columns
+# Call the function to load CSS
+load_css("styles/metrics.css")
+
+# Call and Put Option Containers
 with st.container():
-    col1, col2 = st.columns(2)
+    col1, col2 = st.columns([1, 1], gap="small")
 
     with col1:
-        st.subheader("Call Option Price")
-        st.metric(label="Current Price", value=f"${bsm.call_option_price():.2f}")
+        st.markdown(f"""
+            <div class="metric-container metric-call">
+                <div class="metric-label">Call Option Price</div>
+                <div class="metric-value">${bsm.call_option_price():.2f}</div>
+            </div>
+        """, unsafe_allow_html=True)
 
     with col2:
-        st.subheader("Put Option Price")
-        st.metric(label="Current Price", value=f"${bsm.put_option_price():.2f}")
+        st.markdown(f"""
+            <div class="metric-container metric-put">
+                <div class="metric-label">Put Option Price</div>
+                <div class="metric-value">${bsm.put_option_price():.2f}</div>
+            </div>
+        """, unsafe_allow_html=True)
+
+
+# Integration with Streamlit UI
+st.write("## Sensitivity Analysis: Option Pricing")
+st.write("Adjust the sidebar heatmap parameters to explore how option prices vary with changes in stock price and "
+         "volatility.")
+
+
+# Generate and display the heatmap
+call_sensitivity_fig, put_sensitivity_fig = generate_sensitivity_heatmap(
+    K=strike_price_input,
+    T=days_to_maturity / 365,
+    r=risk_free_rate_input / 100,
+    price_range=price_shock_slider,
+    vol_range=vol_shock_slider,
+)
+
+# Display side by side in Streamlit
+col1, col2 = st.columns(2)
+with col1:
+    st.pyplot(call_sensitivity_fig)
+with col2:
+    st.pyplot(put_sensitivity_fig)
 
 
