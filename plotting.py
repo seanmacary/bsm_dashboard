@@ -1,0 +1,39 @@
+import streamlit as st
+import plotly.express as px
+import yfinance as yf
+
+
+def historical_stock_price_chart(selected_equity: str):
+    """
+    Fetches historical stock data for the given equity and generates an interactive Plotly chart.
+
+    Args:
+        selected_equity (str): The stock ticker symbol.
+
+    Returns:
+        None (Displays the plot in Streamlit)
+    """
+    hist_stock_data = yf.Ticker(selected_equity).history(period='12mo')
+    if hist_stock_data.empty:
+        st.warning(f"No data available for {selected_equity}. Please try another stock.")
+        return
+
+    fig = px.line(
+        hist_stock_data,
+        x=hist_stock_data.index,  # Date as X-axis
+        y="Close",  # Closing price as Y-axis
+        title=f"{selected_equity} Historical Stock Price",
+        labels={"Close": "Stock Price (USD)", "index": "Date"},
+    )
+
+    fig.update_layout(
+        width=1200,  # Set width (adjustable)
+        height=500,  # Set height (adjustable)
+        xaxis_title="Date",
+        yaxis_title="Stock Price (USD)",
+        xaxis=dict(showgrid=True),
+        yaxis=dict(showgrid=True),
+        template="plotly_white",  # Clean white background theme
+    )
+
+    return fig

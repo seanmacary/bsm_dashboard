@@ -58,3 +58,5 @@ def reset_inputs_to_default() -> None:
     """Reset all sidebar input values to their default state."""
     for key, value in st.session_state.default_values.items():
         st.session_state[key] = value
+
+

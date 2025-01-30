@@ -3,13 +3,17 @@ from utils import (
     fetch_stock_data, compute_default_values,
     reset_inputs_to_default, scrape_spy_tickers
 )
+from plotting import historical_stock_price_chart
+from black_scholes_model import BlackScholesModel
 
 
-# Title for the App
-st.markdown(
-    "<h1 style='text-align: center;'>Black-Scholes Option Pricing Model for S&P 500 Equities</h1>",
-    unsafe_allow_html=True
-)
+# Page configuration
+st.set_page_config(
+    page_title="Black-Scholes Option Pricing Model for S&P 500 Equities",
+    layout="wide",
+    initial_sidebar_state="expanded")
+
+################# SIDEBAR Section UI CODE #####################
 
 # Title for the sidebar
 st.sidebar.title("BSM Inputs")
@@ -56,7 +60,7 @@ if st.sidebar.button("Reset Below Inputs to Default"):
 strike_price_input = st.sidebar.number_input(
     "Enter a Strike Price:",
     min_value=0.0,  # Minimum value of 0 (no strike below 0)
-    step=0.1,  # Increment step
+    step=1.0,  # Increment step
     format="%.2f",  # Display format,
     key='strike_price_input'
 )
@@ -105,3 +109,47 @@ vol_shock_slider = st.sidebar.slider(
     st.session_state.vol_shock_default_range,
     key='vol_shock_default_range',
 )
+
+################# MAIN Section UI CODE #####################
+
+# Title for the App
+margins_css = """
+    <style>
+        .main > div {
+            padding-left: 0rem;
+            padding-right: 0rem;
+        }
+    </style>
+"""
+
+st.markdown(margins_css, unsafe_allow_html=True)
+st.markdown(
+    "<h1 style='text-align: center;'>Black-Scholes Option Pricing Model for S&P 500 Equities</h1>",
+    unsafe_allow_html=True
+)
+
+# Historical Stock Price chart (1-yr)
+st.plotly_chart(historical_stock_price_chart(selected_equity), use_container_width=True)
+
+# Initialize BSM with provided input parameters
+bsm = BlackScholesModel(
+    S=cur_share_price,
+    K=strike_price_input,
+    T=days_to_maturity / 365,
+    r=risk_free_rate_input/100,
+    sigma=volatility
+)
+
+# Create a new container with two columns
+with st.container():
+    col1, col2 = st.columns(2)
+
+    with col1:
+        st.subheader("Call Option Price")
+        st.metric(label="Current Price", value=f"${bsm.call_option_price():.2f}")
+
+    with col2:
+        st.subheader("Put Option Price")
+        st.metric(label="Current Price", value=f"${bsm.put_option_price():.2f}")
+
+
