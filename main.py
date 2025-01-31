@@ -123,6 +123,7 @@ st.markdown(
     unsafe_allow_html=True
 )
 
+st.write("## Historical Stock Price Chart")
 # Historical Stock Price chart (1-yr)
 st.plotly_chart(historical_stock_price_chart(selected_equity), use_container_width=True)
 
@@ -162,7 +163,7 @@ with st.container():
             </div>
         """, unsafe_allow_html=True)
 
-
+st.write(" ")
 st.write("## Sensitivity Analysis: Option Pricing")
 st.write("Adjust the sidebar heatmap parameters to explore how option prices vary with changes in stock price and "
          "volatility.")
@@ -186,21 +187,26 @@ with col2:
 
 st.write("## Option Profit/Loss at Expiration")
 option_type = st.selectbox("Select Option Type", ["Call", "Put"])
+num_contracts = st.number_input("Input number of Contracts Purchased", 1)
 
 fig = generate_option_pnl(
     option_type=option_type,
     strike_price=strike_price_input,
     premium_call=call_option_price,
     premium_put=put_option_price,
-    stock_price_range=price_shock_slider)
+    stock_price_range=price_shock_slider,
+    num_contracts=num_contracts
+)
 st.plotly_chart(fig)
 
 # Create Data Table with Inputs
 data = {
     "Option Type": [option_type],
     "Strike Price ($)": [f"{strike_price_input:.2f}"],
-    "Premium Paid ($)": [f"{round(call_option_price, 2) if option_type == 'Call' else round(put_option_price, 2):.2f}"],
-    "Break-Even Price ($)": [f"{strike_price_input + call_option_price if option_type == 'Call' else strike_price_input - put_option_price:.2f}"]
+    "Premium Paid ($)": [f"{round(call_option_price * num_contracts, 2) if option_type == 'Call' else round(put_option_price * num_contracts, 2):.2f}"],
+    "Break-Even Price ($)": [f"{strike_price_input + call_option_price if option_type == 'Call' else strike_price_input - put_option_price:.2f}"],
+    "Max Profit ($)": ["Unlimited" if option_type == "Call" else f"{(strike_price_input - put_option_price) * num_contracts:.2f}"],
+    "Max Loss ($)": [f"{round(call_option_price * num_contracts, 2) if option_type == 'Call' else round(put_option_price * num_contracts, 2):.2f}"]
 }
 
 df = pd.DataFrame(data)

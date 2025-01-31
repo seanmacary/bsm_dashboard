@@ -58,7 +58,7 @@ def generate_sensitivity_heatmap(K, T, r,  price_range, vol_range):
     # Plot Call Price Heatmap
     fig_call, ax_call = plt.subplots(figsize=(10, 8))
     sns.heatmap(call_prices, xticklabels=np.round(stock_prices, 2), yticklabels=np.round(volatilities, 2),
-                annot=True, fmt=".2f", cmap="viridis", ax=ax_call)
+                annot=True, fmt=".2f", cmap="viridis", ax=ax_call, cbar_kws={'label': 'Premium Price ($)'})
     ax_call.set_title('Call Option Prices', fontsize=16)
     ax_call.set_xlabel('Stock Price')
     ax_call.set_ylabel('Volatility')
@@ -66,7 +66,7 @@ def generate_sensitivity_heatmap(K, T, r,  price_range, vol_range):
     # Plot Put Price Heatmap
     fig_put, ax_put = plt.subplots(figsize=(10, 8))
     sns.heatmap(put_prices, xticklabels=np.round(stock_prices, 2), yticklabels=np.round(volatilities, 2),
-                annot=True, fmt=".2f", cmap="viridis", ax=ax_put)
+                annot=True, fmt=".2f", cmap="viridis", ax=ax_put, cbar_kws={'label': 'Premium Price ($)'})
     ax_put.set_title('Put Option Prices', fontsize=16)
     ax_put.set_xlabel('Stock Price')
     ax_put.set_ylabel('Volatility')
@@ -74,13 +74,13 @@ def generate_sensitivity_heatmap(K, T, r,  price_range, vol_range):
     return fig_call, fig_put
 
 
-def generate_option_pnl(option_type, strike_price, premium_call, premium_put, stock_price_range):
+def generate_option_pnl(option_type, strike_price, premium_call, premium_put, stock_price_range, num_contracts):
     stock_prices = np.linspace(stock_price_range[0], stock_price_range[1], 100)
     if option_type == "Call":
-        pnl = np.maximum(stock_prices - strike_price, 0) - premium_call
+        pnl = (np.maximum(stock_prices - strike_price, 0) - premium_call) * num_contracts
         break_even = strike_price + premium_call
     else:
-        pnl = np.maximum(strike_price - stock_prices, 0) - premium_put
+        pnl = (np.maximum(strike_price - stock_prices, 0) - premium_put) * num_contracts
         break_even = strike_price - premium_put
 
     fig = go.Figure()
