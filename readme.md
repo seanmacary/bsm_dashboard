@@ -1,5 +1,8 @@
 # Black-Scholes Model Option Pricing Streamlit App 
 
+## Link
+[https://seanmacary-blackscholes-optionpricingmodel.streamlit.app/]
+
 ## Overview
 
 This project is a Streamlit-based web application that allows users to estimate Call and Put option prices for S&P 500 equities using the **Black-Scholes Model (BSM)**. The Black-Scholes Model is a mathematical framework used to determine the theoretical price of European-style options by considering factors such as the underlying stock price, strike price, time to expiration, risk-free interest rate, and market volatility. Widely used in financial markets, BSM helps traders and investors assess fair option pricing, manage risk, and develop trading strategies based on expected price movements. The app dynamically fetches stock price data, calculates volatility, and provides an interactive interface for financial analysis.
