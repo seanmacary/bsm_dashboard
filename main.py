@@ -204,7 +204,7 @@ st.plotly_chart(fig)
 data = {
     "Option Type": [option_type],
     "Strike Price ($)": [f"{strike_price_input:.2f}"],
-    "Premium Paid ($)": [f"{round(call_option_price * num_contracts * 100, 2) if option_type == 'Call' else round(put_option_price * num_contracts * 100, 2):.2f}"],
+    "Total Premium Paid ($)": [f"{round(call_option_price * num_contracts * 100, 2) if option_type == 'Call' else round(put_option_price * num_contracts * 100, 2):.2f}"],
     "Break-Even Price ($)": [f"{strike_price_input + call_option_price if option_type == 'Call' else strike_price_input - put_option_price:.2f}"],
     "Max Profit ($)": ["Unlimited" if option_type == "Call" else f"{(strike_price_input - put_option_price) * num_contracts * 100:.2f}"],
     "Max Loss ($)": [f"{round(call_option_price * num_contracts * 100, 2) if option_type == 'Call' else round(put_option_price * num_contracts * 100, 2):.2f}"]
