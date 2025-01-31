@@ -26,7 +26,7 @@ This project is a Streamlit-based web application that allows users to estimate 
 
 ### Prerequisites
 
-Ensure you have Python installed. Install the required dependencies using:
+Ensure you have Python installed. Install the required dependencies and launch the application using:
 
 ```bash
 pip install -r requirements.txt
