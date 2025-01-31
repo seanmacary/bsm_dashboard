@@ -77,10 +77,10 @@ def generate_sensitivity_heatmap(K, T, r,  price_range, vol_range):
 def generate_option_pnl(option_type, strike_price, premium_call, premium_put, stock_price_range, num_contracts):
     stock_prices = np.linspace(stock_price_range[0], stock_price_range[1], 100)
     if option_type == "Call":
-        pnl = (np.maximum(stock_prices - strike_price, 0) - premium_call) * num_contracts
+        pnl = (np.maximum(stock_prices - strike_price, 0) - premium_call) * num_contracts * 100
         break_even = strike_price + premium_call
     else:
-        pnl = (np.maximum(strike_price - stock_prices, 0) - premium_put) * num_contracts
+        pnl = (np.maximum(strike_price - stock_prices, 0) - premium_put) * num_contracts * 100
         break_even = strike_price - premium_put
 
     fig = go.Figure()
