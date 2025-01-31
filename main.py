@@ -145,6 +145,7 @@ put_option_price = bsm.put_option_price()
 
 # Call and Put Option Containers
 with st.container():
+    st.write("## Option Price per Share")
     col1, col2 = st.columns([1, 1], gap="small")
 
     with col1:
@@ -188,7 +189,7 @@ with col2:
 st.write("## Option Profit/Loss at Expiration")
 st.write("**The below analysis considers 1 contract to consist of 100 shares of underlying**")
 option_type = st.selectbox("Select Option Type", ["Call", "Put"])
-num_contracts = st.number_input("Input number of Contracts Purchased", 1)
+num_contracts = st.number_input("Input number of Contracts Purchased", st.session_state.num_contracts, key='num_contracts')
 
 fig = generate_option_pnl(
     option_type=option_type,

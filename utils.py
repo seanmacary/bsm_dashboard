@@ -51,6 +51,7 @@ def compute_default_values(cur_share_price: float, cur_volatility: float) -> dic
             round(max(0.0, (cur_volatility * 0.5)), 4),  # Lower bound (ensuring non-negative values)
             round(cur_volatility * 2.5, 4)
         ),
+        "num_contracts": 1
     }
 
 
