@@ -3,7 +3,11 @@ from utils import (
     fetch_stock_data, compute_default_values,
     reset_inputs_to_default, scrape_spy_tickers, load_css
 )
-from plotting import historical_stock_price_chart, generate_sensitivity_heatmap
+from plotting import (
+    historical_stock_price_chart, generate_sensitivity_heatmap,
+    generate_option_pnl
+)
+import pandas as pd
 from black_scholes_model import BlackScholesModel
 
 
@@ -134,6 +138,10 @@ bsm = BlackScholesModel(
 # Call the function to load CSS
 load_css("styles/metrics.css")
 
+# Calculate Call and Put Options Prices
+call_option_price = bsm.call_option_price()
+put_option_price = bsm.put_option_price()
+
 # Call and Put Option Containers
 with st.container():
     col1, col2 = st.columns([1, 1], gap="small")
@@ -142,7 +150,7 @@ with st.container():
         st.markdown(f"""
             <div class="metric-container metric-call">
                 <div class="metric-label">Call Option Price</div>
-                <div class="metric-value">${bsm.call_option_price():.2f}</div>
+                <div class="metric-value">${call_option_price:.2f}</div>
             </div>
         """, unsafe_allow_html=True)
 
@@ -150,12 +158,11 @@ with st.container():
         st.markdown(f"""
             <div class="metric-container metric-put">
                 <div class="metric-label">Put Option Price</div>
-                <div class="metric-value">${bsm.put_option_price():.2f}</div>
+                <div class="metric-value">${put_option_price:.2f}</div>
             </div>
         """, unsafe_allow_html=True)
 
 
-# Integration with Streamlit UI
 st.write("## Sensitivity Analysis: Option Pricing")
 st.write("Adjust the sidebar heatmap parameters to explore how option prices vary with changes in stock price and "
          "volatility.")
@@ -177,4 +184,24 @@ with col1:
 with col2:
     st.pyplot(put_sensitivity_fig)
 
+st.write("## Option Profit/Loss at Expiration")
+option_type = st.selectbox("Select Option Type", ["Call", "Put"])
 
+fig = generate_option_pnl(
+    option_type=option_type,
+    strike_price=strike_price_input,
+    premium_call=call_option_price,
+    premium_put=put_option_price,
+    stock_price_range=price_shock_slider)
+st.plotly_chart(fig)
+
+# Create Data Table with Inputs
+data = {
+    "Option Type": [option_type],
+    "Strike Price ($)": [f"{strike_price_input:.2f}"],
+    "Premium Paid ($)": [f"{round(call_option_price, 2) if option_type == 'Call' else round(put_option_price, 2):.2f}"],
+    "Break-Even Price ($)": [f"{strike_price_input + call_option_price if option_type == 'Call' else strike_price_input - put_option_price:.2f}"]
+}
+
+df = pd.DataFrame(data)
+st.table(df)  # Display table above the plot

@@ -4,7 +4,7 @@ import numpy as np
 import plotly.express as px
 import seaborn as sns
 import matplotlib.pyplot as plt
-import pandas as pd
+import plotly.graph_objects as go
 
 from black_scholes_model import BlackScholesModel
 
@@ -72,3 +72,27 @@ def generate_sensitivity_heatmap(K, T, r,  price_range, vol_range):
     ax_put.set_ylabel('Volatility')
 
     return fig_call, fig_put
+
+
+def generate_option_pnl(option_type, strike_price, premium_call, premium_put, stock_price_range):
+    stock_prices = np.linspace(stock_price_range[0], stock_price_range[1], 100)
+    if option_type == "Call":
+        pnl = np.maximum(stock_prices - strike_price, 0) - premium_call
+        break_even = strike_price + premium_call
+    else:
+        pnl = np.maximum(strike_price - stock_prices, 0) - premium_put
+        break_even = strike_price - premium_put
+
+    fig = go.Figure()
+    fig.add_trace(go.Scatter(x=stock_prices, y=pnl, mode="lines", name=f"{option_type} Option P/L"))
+
+    fig.add_vline(x=break_even, line=dict(color="red", dash="dash"), annotation_text=f"Break-even {option_type}",
+                  annotation_position="top right")
+
+    fig.update_layout(
+        title=f"{option_type} Option Profit/Loss at Expiration",
+        xaxis_title="Stock Price at Expiration",
+        yaxis_title="Profit / Loss ($)",
+        template="plotly_white"
+    )
+    return fig
