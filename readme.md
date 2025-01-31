@@ -1,4 +1,4 @@
-# Black-Scholes Model Option Pricing Streamlit App
+# Black-Scholes Model Option Pricing Streamlit App 
 
 ## Overview
 
@@ -24,7 +24,6 @@ This project is a Streamlit-based web application that allows users to estimate 
 
 ## Installation & Setup
 
-### Prerequisites
 
 Ensure you have Python installed. Install the required dependencies and launch the application using:
 
