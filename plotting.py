@@ -58,16 +58,16 @@ def generate_sensitivity_heatmap(K, T, r,  price_range, vol_range):
     # Plot Call Price Heatmap
     fig_call, ax_call = plt.subplots(figsize=(10, 8))
     sns.heatmap(call_prices, xticklabels=np.round(stock_prices, 2), yticklabels=np.round(volatilities, 2),
-                annot=True, fmt=".2f", cmap="viridis", ax=ax_call, cbar_kws={'label': 'Premium Price ($)'})
-    ax_call.set_title('Call Option Prices', fontsize=16)
+                annot=True, fmt=".2f", cmap="viridis", ax=ax_call, cbar_kws={'label': 'Premium Price per Share ($)'})
+    ax_call.set_title('Call Option Prices per Share', fontsize=16)
     ax_call.set_xlabel('Stock Price')
     ax_call.set_ylabel('Volatility')
 
     # Plot Put Price Heatmap
     fig_put, ax_put = plt.subplots(figsize=(10, 8))
     sns.heatmap(put_prices, xticklabels=np.round(stock_prices, 2), yticklabels=np.round(volatilities, 2),
-                annot=True, fmt=".2f", cmap="viridis", ax=ax_put, cbar_kws={'label': 'Premium Price ($)'})
-    ax_put.set_title('Put Option Prices', fontsize=16)
+                annot=True, fmt=".2f", cmap="viridis", ax=ax_put, cbar_kws={'label': 'Premium Price per Share ($)'})
+    ax_put.set_title('Put Option Prices per Share', fontsize=16)
     ax_put.set_xlabel('Stock Price')
     ax_put.set_ylabel('Volatility')
 

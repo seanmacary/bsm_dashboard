@@ -150,7 +150,7 @@ with st.container():
     with col1:
         st.markdown(f"""
             <div class="metric-container metric-call">
-                <div class="metric-label">Call Option Price</div>
+                <div class="metric-label">Call Option Price per Share</div>
                 <div class="metric-value">${call_option_price:.2f}</div>
             </div>
         """, unsafe_allow_html=True)
@@ -158,13 +158,13 @@ with st.container():
     with col2:
         st.markdown(f"""
             <div class="metric-container metric-put">
-                <div class="metric-label">Put Option Price</div>
+                <div class="metric-label">Put Option Price per Share</div>
                 <div class="metric-value">${put_option_price:.2f}</div>
             </div>
         """, unsafe_allow_html=True)
 
 st.write(" ")
-st.write("## Sensitivity Analysis: Option Pricing")
+st.write("## Sensitivity Analysis: Option Pricing per Share")
 st.write("Adjust the sidebar heatmap parameters to explore how option prices vary with changes in stock price and "
          "volatility.")
 
@@ -186,6 +186,7 @@ with col2:
     st.pyplot(put_sensitivity_fig)
 
 st.write("## Option Profit/Loss at Expiration")
+st.write("**The below analysis considers 1 contract to consist of 100 shares of underlying**")
 option_type = st.selectbox("Select Option Type", ["Call", "Put"])
 num_contracts = st.number_input("Input number of Contracts Purchased", 1)
 
@@ -203,10 +204,10 @@ st.plotly_chart(fig)
 data = {
     "Option Type": [option_type],
     "Strike Price ($)": [f"{strike_price_input:.2f}"],
-    "Premium Paid ($)": [f"{round(call_option_price * num_contracts, 2) if option_type == 'Call' else round(put_option_price * num_contracts, 2):.2f}"],
+    "Premium Paid ($)": [f"{round(call_option_price * num_contracts * 100, 2) if option_type == 'Call' else round(put_option_price * num_contracts * 100, 2):.2f}"],
     "Break-Even Price ($)": [f"{strike_price_input + call_option_price if option_type == 'Call' else strike_price_input - put_option_price:.2f}"],
-    "Max Profit ($)": ["Unlimited" if option_type == "Call" else f"{(strike_price_input - put_option_price) * num_contracts:.2f}"],
-    "Max Loss ($)": [f"{round(call_option_price * num_contracts, 2) if option_type == 'Call' else round(put_option_price * num_contracts, 2):.2f}"]
+    "Max Profit ($)": ["Unlimited" if option_type == "Call" else f"{(strike_price_input - put_option_price) * num_contracts * 100:.2f}"],
+    "Max Loss ($)": [f"{round(call_option_price * num_contracts * 100, 2) if option_type == 'Call' else round(put_option_price * num_contracts * 100, 2):.2f}"]
 }
 
 df = pd.DataFrame(data)
