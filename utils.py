@@ -48,8 +48,8 @@ def compute_default_values(cur_share_price: float, cur_volatility: float) -> dic
             round(cur_share_price * 1.1, 0),
         ),
         "vol_shock_default_range": (
-            round(cur_volatility * 0.95, 4),
-            round(cur_volatility * 1.05, 4),
+            round(max(0.0, (cur_volatility * 0.5)), 4),  # Lower bound (ensuring non-negative values)
+            round(cur_volatility * 2.5, 4)
         ),
     }
 

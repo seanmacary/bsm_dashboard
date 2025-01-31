@@ -59,7 +59,7 @@ def generate_sensitivity_heatmap(K, T, r,  price_range, vol_range):
     fig_call, ax_call = plt.subplots(figsize=(10, 8))
     sns.heatmap(call_prices, xticklabels=np.round(stock_prices, 2), yticklabels=np.round(volatilities, 2),
                 annot=True, fmt=".2f", cmap="viridis", ax=ax_call)
-    ax_call.set_title('Call Option Prices')
+    ax_call.set_title('Call Option Prices', fontsize=16)
     ax_call.set_xlabel('Stock Price')
     ax_call.set_ylabel('Volatility')
 
@@ -67,7 +67,7 @@ def generate_sensitivity_heatmap(K, T, r,  price_range, vol_range):
     fig_put, ax_put = plt.subplots(figsize=(10, 8))
     sns.heatmap(put_prices, xticklabels=np.round(stock_prices, 2), yticklabels=np.round(volatilities, 2),
                 annot=True, fmt=".2f", cmap="viridis", ax=ax_put)
-    ax_put.set_title('Put Option Prices')
+    ax_put.set_title('Put Option Prices', fontsize=16)
     ax_put.set_xlabel('Stock Price')
     ax_put.set_ylabel('Volatility')
 

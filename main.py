@@ -106,7 +106,7 @@ price_shock_slider = st.sidebar.slider(
 vol_shock_slider = st.sidebar.slider(
     'Select a range of volatility-shock values',
     round(cur_volatility * 0.5, 4),
-    round(cur_volatility * 1.5, 4),
+    round(cur_volatility * 2.5, 4),
     st.session_state.vol_shock_default_range,
     key='vol_shock_default_range',
 )
